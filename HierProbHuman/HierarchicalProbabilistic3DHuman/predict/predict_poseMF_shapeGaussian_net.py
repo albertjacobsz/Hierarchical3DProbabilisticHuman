@@ -156,6 +156,8 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
                 pred_glob_rotmats = batch_rodrigues(pred_glob)  # (1, 3, 3)
             elif pred_glob.shape[-1] == 6:
                 pred_glob_rotmats = rot6d_to_rotmat(pred_glob)  # (1, 3, 3)
+            global_angles = pytorch3d.transforms.matrix_to_euler_angles(
+                pred_glob_rotmats, 'XYZ')
             #print(samples_of_glob_rots - pred_glob_rotmats.cpu())
             pred_smpl_output_mode = smpl_model(body_pose=pred_pose_rotmats_mode,
                                                global_orient=pred_glob_rotmats.unsqueeze(
