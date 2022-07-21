@@ -146,6 +146,7 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
                     _pred_glob_rotmats, 'XYZ').cpu()
                 samples_of_glob_rots[i] = xyz
                 average_of_sample_rots += xyz
+                print(average_of_sample_rots)
 
             #samples_of_glob_rots = samples_of_glob_rots * (1/n)
             print(
@@ -241,9 +242,9 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
                         rm, 'XYZ')
                     df = [math.degrees(xyz[0]), math.degrees(
                         xyz[1]), math.degrees(xyz[2])]
-                    print("JOINT ROTATION")
-                    print(df)
-                    print('==================================')
+                    #print("JOINT ROTATION")
+                    # print(df)
+                    # print('==================================')
                     ppfA.append(df)
 
             if visualise_samples:
