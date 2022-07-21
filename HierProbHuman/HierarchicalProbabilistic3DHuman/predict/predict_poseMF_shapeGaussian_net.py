@@ -4,6 +4,7 @@ import torch
 import cv2
 import matplotlib.pyplot as plt
 from tqdm import tqdm
+import pytorch3d
 from smplx.lbs import batch_rodrigues
 
 from predict.predict_hrnet import predict_hrnet
@@ -131,11 +132,9 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
             pred_pose_F, pred_pose_U, pred_pose_S, pred_pose_V, pred_pose_rotmats_mode, \
                 pred_shape_dist, pred_glob, pred_cam_wp = pose_shape_model(
                     proxy_rep_input)
-
+            n = 10
             samples_of_glob_rots = torch.zeros([100, 1, 3, 3])
             average_of_sample_rots = torch.zeros([1, 3, 3])
-            n = 10
-
             for i in range(0, n):
                 f, u, s, v, pose, shape, glob, cam_wp = pose_shape_model(
                     proxy_rep_input)
