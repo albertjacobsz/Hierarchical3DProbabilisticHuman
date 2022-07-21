@@ -232,7 +232,6 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
             # print("#==========================================================#")
             ppf = pred_pose_rotmats_mode.cpu().numpy()
             ppfA = []
-            mag_for_joints = []
             for x in ppf:
                 for rm in x:
                     # print(x)
@@ -299,7 +298,7 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
             #DTA = AppendMultipleToDTA(DTA,sDat)
             # print(ppfA)
             DTA = appendFJointsToDTA(DTA, ppfA)
-            DTA = appendREuclideanToDTA(DTA, mag_for_joints)
+            #DTA = appendREuclideanToDTA(DTA, mag_for_joints)
             DTA = AppendMultipleToDTA(DTA, hrnet_output['joints2Dconfs'])
             writeToCSV(DTA)
 
@@ -493,7 +492,7 @@ def writeToCSV(data):
         writer = csv.writer(f)
         if(str == 'w'):
             writer.writerow(['name', 'Maximum uncertainty', 'Average Uncertainty', 'Number of Joints', 'Camera Scale', 'Camera X translation', 'Camera Y translation', 'Global X rotation', 'Global Y rotation', 'Global Z rotation', 'R0X', 'R0Y', 'R0Z', 'R1X', 'R1Y', 'R1Z', 'R2X', 'R2Y', 'R2Z', 'R3X', 'R3Y', 'R3Z', 'R4X', 'R4Y', 'R4Z', 'R5X', 'R5Y', 'R5Z', 'R6X', 'R6Y', 'R6Z', 'R7X', 'R7Y', 'R7Z', 'R8X', 'R8Y', 'R8Z', 'R9X', 'R9Y', 'R9Z', 'R10X', 'R10Y', 'R10Z', 'R11X', 'R11Y', 'R11Z', 'R12X', 'R12Y', 'R12Z',
-                            'R13X', 'R13Y', 'R13Z', 'R14X', 'R14Y', 'R14Z', 'R15X', 'R15Y', 'R15Z', 'R16X', 'R16Y', 'R16Z', 'R17X', 'R17Y', 'R17Z', 'R18X', 'R18Y', 'R18Z', 'R19X', 'R19Y', 'R19Z', 'R20X', 'R20Y', 'R20Z', 'R21X', 'R21Y', 'R21Z', 'R22X', 'R22Y', 'R22Z', 'R1', 'R2', 'R3', 'R4', 'R5', 'R6', 'R7', 'R8', 'R9', 'R10', 'R11', 'R12', 'R13', 'R14', 'R15', 'R16', 'R17', 'R18', 'R19', 'R20', 'R21', 'R22', 'R23', 'J1', 'J2', 'J3', 'J4', 'J5', 'J6', 'J7', 'J8', 'J9', 'J10', 'J11', 'J12', 'J13', 'J14', 'J15', 'J16'])
+                            'R13X', 'R13Y', 'R13Z', 'R14X', 'R14Y', 'R14Z', 'R15X', 'R15Y', 'R15Z', 'R16X', 'R16Y', 'R16Z', 'R17X', 'R17Y', 'R17Z', 'R18X', 'R18Y', 'R18Z', 'R19X', 'R19Y', 'R19Z', 'R20X', 'R20Y', 'R20Z', 'R21X', 'R21Y', 'R21Z', 'R22X', 'R22Y', 'R22Z', 'J1', 'J2', 'J3', 'J4', 'J5', 'J6', 'J7', 'J8', 'J9', 'J10', 'J11', 'J12', 'J13', 'J14', 'J15', 'J16'])
         # write a row to the csv file
         writer.writerow(data)
 
