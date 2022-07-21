@@ -145,7 +145,7 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
                 xyz = pytorch3d.transforms.matrix_to_euler_angles(
                     _pred_glob_rotmats, 'XYZ').cpu()
                 print(xyz)
-                samples_of_glob_rots[i] += xyz
+                #samples_of_glob_rots[i] += xyz
                 average_of_sample_rots += xyz
                 print(average_of_sample_rots * (1/n))
 
