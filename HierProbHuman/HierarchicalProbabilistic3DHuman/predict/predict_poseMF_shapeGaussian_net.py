@@ -146,67 +146,69 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
                     _pred_glob_rotmats, 'XYZ').cpu()
 
                 samples_of_glob_rots[i] += xyz
+                print(samples_of_glob_rots)
+                print(xyz)
                 average_of_sample_rots += xyz
 
-            #samples_of_glob_rots = samples_of_glob_rots * (1/n)
-            print(
+            # samples_of_glob_rots = samples_of_glob_rots * (1/n)
+            # print(
                 "-------------------n samples of global rotation matrix-------------------")
-            print(average_of_sample_rots * (1/n))
-            print("----------- SAMPLES---------")
-            print(samples_of_glob_rots)
+            # print(average_of_sample_rots * (1/n))
+            # print("----------- SAMPLES---------")
+            # print(samples_of_glob_rots)
             # print(samples_of_glob_rots)
             # Pose F, U, V and rotmats_mode are (bsize, 23, 3, 3) and Pose S is (bsize, 23, 3)
             if pred_glob.shape[-1] == 3:
-                pred_glob_rotmats = batch_rodrigues(pred_glob)  # (1, 3, 3)
+                pred_glob_rotmats=batch_rodrigues(pred_glob)  # (1, 3, 3)
             elif pred_glob.shape[-1] == 6:
-                pred_glob_rotmats = rot6d_to_rotmat(pred_glob)  # (1, 3, 3)
-            global_angles = pytorch3d.transforms.matrix_to_euler_angles(
+                pred_glob_rotmats=rot6d_to_rotmat(pred_glob)  # (1, 3, 3)
+            global_angles=pytorch3d.transforms.matrix_to_euler_angles(
                 pred_glob_rotmats, 'XYZ')
-            #print(samples_of_glob_rots - pred_glob_rotmats.cpu())
-            pred_smpl_output_mode = smpl_model(body_pose=pred_pose_rotmats_mode,
-                                               global_orient=pred_glob_rotmats.unsqueeze(
+            # print(samples_of_glob_rots - pred_glob_rotmats.cpu())
+            pred_smpl_output_mode=smpl_model(body_pose = pred_pose_rotmats_mode,
+                                               global_orient = pred_glob_rotmats.unsqueeze(
                                                    1),
-                                               betas=pred_shape_dist.loc,
-                                               pose2rot=False)
+                                               betas = pred_shape_dist.loc,
+                                               pose2rot = False)
         # -------------------------------------------- Angles in radians ---------------------------#
         # --END--#
-            pred_vertices_mode = pred_smpl_output_mode.vertices  # (1, 6890, 3)
+            pred_vertices_mode=pred_smpl_output_mode.vertices  # (1, 6890, 3)
             # Need to flip pred_vertices before projecting so that they project the right way up.
-            pred_vertices_mode = aa_rotate_translate_points_pytorch3d(points=pred_vertices_mode,
-                                                                      axes=torch.tensor(
+            pred_vertices_mode=aa_rotate_translate_points_pytorch3d(points = pred_vertices_mode,
+                                                                      axes = torch.tensor(
                                                                           [1., 0., 0.], device=device),
-                                                                      angles=np.pi,
-                                                                      translations=torch.zeros(3, device=device))
+                                                                      angles = np.pi,
+                                                                      translations = torch.zeros(3, device=device))
             # -------------------------------------------------PREDICTED  VERTICES ARE USED TO SHOW GREGY 3D model ------------------------------------------------------------------------#
             # Rotating 90° about vertical axis for visualisation
-            pred_vertices_rot90_mode = aa_rotate_translate_points_pytorch3d(points=pred_vertices_mode,
-                                                                            axes=torch.tensor(
+            pred_vertices_rot90_mode=aa_rotate_translate_points_pytorch3d(points = pred_vertices_mode,
+                                                                            axes = torch.tensor(
                                                                                 [0., 1., 0.], device=device),
-                                                                            angles=-np.pi / 2.,
-                                                                            translations=torch.zeros(3, device=device))
-            pred_vertices_rot180_mode = aa_rotate_translate_points_pytorch3d(points=pred_vertices_rot90_mode,
-                                                                             axes=torch.tensor(
+                                                                            angles = -np.pi / 2.,
+                                                                            translations = torch.zeros(3, device=device))
+            pred_vertices_rot180_mode=aa_rotate_translate_points_pytorch3d(points = pred_vertices_rot90_mode,
+                                                                             axes = torch.tensor(
                                                                                  [0., 1., 0.], device=device),
-                                                                             angles=-np.pi / 2.,
-                                                                             translations=torch.zeros(3, device=device))
-            pred_vertices_rot270_mode = aa_rotate_translate_points_pytorch3d(points=pred_vertices_rot180_mode,
-                                                                             axes=torch.tensor(
+                                                                             angles = -np.pi / 2.,
+                                                                             translations = torch.zeros(3, device=device))
+            pred_vertices_rot270_mode=aa_rotate_translate_points_pytorch3d(points = pred_vertices_rot180_mode,
+                                                                             axes = torch.tensor(
                                                                                  [0., 1., 0.], device=device),
-                                                                             angles=-np.pi / 2.,
-                                                                             translations=torch.zeros(3, device=device))
+                                                                             angles = -np.pi / 2.,
+                                                                             translations = torch.zeros(3, device=device))
 
-            pred_reposed_smpl_output_mean = smpl_model(
-                betas=pred_shape_dist.loc)
+            pred_reposed_smpl_output_mean=smpl_model(
+                betas = pred_shape_dist.loc)
             # (1, 6890, 3)
-            pred_reposed_vertices_mean = pred_reposed_smpl_output_mean.vertices
+            pred_reposed_vertices_mean=pred_reposed_smpl_output_mean.vertices
             # Need to flip pred_vertices before projecting so that they project the right way up.
-            pred_reposed_vertices_flipped_mean = aa_rotate_translate_points_pytorch3d(points=pred_reposed_vertices_mean,
-                                                                                      axes=torch.tensor(
+            pred_reposed_vertices_flipped_mean=aa_rotate_translate_points_pytorch3d(points = pred_reposed_vertices_mean,
+                                                                                      axes = torch.tensor(
                                                                                           [1., 0., 0.], device=device),
-                                                                                      angles=np.pi,
-                                                                                      translations=torch.zeros(3, device=device))
+                                                                                      angles = np.pi,
+                                                                                      translations = torch.zeros(3, device=device))
             # Rotating 90° about vertical axis for visualisation
-            pred_reposed_vertices_rot90_mean = aa_rotate_translate_points_pytorch3d(points=pred_reposed_vertices_flipped_mean,
+            pred_reposed_vertices_rot90_mean=aa_rotate_translate_points_pytorch3d(points = pred_reposed_vertices_flipped_mean,
                                                                                     axes=torch.tensor(
                                                                                         [0., 1., 0.], device=device),
                                                                                     angles=-np.pi / 2.,
@@ -230,7 +232,7 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
                 num_samples=50,
                 smpl_model=smpl_model,
                 use_mean_shape=True)
-            #print("Predicted Shape Distance Loc:")
+            # print("Predicted Shape Distance Loc:")
             # print(pred_shape_dist.loc)
             # print("#==========================================================#")
             ppf = pred_pose_rotmats_mode.cpu().numpy()
@@ -244,7 +246,7 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
                         rm, 'XYZ')
                     df = [math.degrees(xyz[0]), math.degrees(
                         xyz[1]), math.degrees(xyz[2])]
-                    #print("JOINT ROTATION")
+                    # print("JOINT ROTATION")
                     # print(df)
                     # print('==================================')
                     ppfA.append(df)
@@ -293,14 +295,14 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
                 den += 1
                 avg += number
 #---------------------------------- Adding all the data to a single array, preparing to write to CSV file 'all_data.csv' -----------------#
-            #uDat = [23]
+            # uDat = [23]
             sDat = calculatePredS(pred_pose_S)
             DTA = [image_fname.split('.')[0], large_num, avg/den, count,
                    camm.item(0), camm.item(1), camm.item(2), str(math.degrees(global_angles[0, 0].item())), str(math.degrees(global_angles[0, 1].item())), str(math.degrees(global_angles[0, 2].item()))]
-            #DTA = AppendMultipleToDTA(DTA,sDat)
+            # DTA = AppendMultipleToDTA(DTA,sDat)
             # print(ppfA)
             DTA = appendFJointsToDTA(DTA, ppfA)
-            #DTA = appendREuclideanToDTA(DTA, mag_for_joints)
+            # DTA = appendREuclideanToDTA(DTA, mag_for_joints)
             DTA = AppendMultipleToDTA(DTA, hrnet_output['joints2Dconfs'])
             writeToCSV(DTA)
 
@@ -310,7 +312,7 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
             vertex_var_colours = torch.from_numpy(
                 vertex_var_colours[None, :, :]).to(device).float()
 
-            #vertex_var_colours = plt.cm.jet(vertex_var_norm(per_vertex_3Dvar.cpu().detach().numpy()))[:, :3]
+            # vertex_var_colours = plt.cm.jet(vertex_var_norm(per_vertex_3Dvar.cpu().detach().numpy()))[:, :3]
             body_vis_output = body_vis_renderer(vertices=pred_vertices_mode,
                                                 cam_t=cam_t,
                                                 orthographic_scale=orthographic_scale,
@@ -506,11 +508,11 @@ def calculatePredS(pred_pose_S):
         #  v =pred_pose_V[x]
         #  f = pred_pose_F[x]
         # Calculate euclidean distance of F = USV
-        #uDat[x] = math.sqrt(float(u[0,x])**2+float(u[1,x])**2+float(u[2,x])**2)
+        # uDat[x] = math.sqrt(float(u[0,x])**2+float(u[1,x])**2+float(u[2,x])**2)
         sDat.append(math.sqrt(float(
             pred_pose_S[0, x, 0])**2+float(pred_pose_S[0, x, 1])**2+float(pred_pose_S[0, x, 2])**2))
         #  vDat[x] = math.sqrt(float(v[0,x])**2+float(v[1,x])**2+float(v[2,x])**2)
-        #fDat[x] = math.sqrt(float(f[0,x])**2+float(f[1,x])**2+float(f[2,x])**2)
+        # fDat[x] = math.sqrt(float(f[0,x])**2+float(f[1,x])**2+float(f[2,x])**2)
     return sDat
 
 
