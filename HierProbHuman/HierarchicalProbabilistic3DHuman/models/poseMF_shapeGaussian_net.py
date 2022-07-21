@@ -98,7 +98,7 @@ class PoseMFShapeGaussianNet(nn.Module):
         device = input_feats.device
 
         x = self.activation(self.fc1(input_feats))
-
+        print(x)
         # Shape
         shape_params = self.fc_shape(x)  # (bsize, num_smpl_betas * 2)
         shape_mean = shape_params[:, :self.num_shape_params]

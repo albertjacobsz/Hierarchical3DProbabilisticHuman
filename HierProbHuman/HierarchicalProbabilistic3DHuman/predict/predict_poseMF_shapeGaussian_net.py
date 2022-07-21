@@ -132,33 +132,7 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
             pred_pose_F, pred_pose_U, pred_pose_S, pred_pose_V, pred_pose_rotmats_mode, \
                 pred_shape_dist, pred_glob, pred_cam_wp = pose_shape_model(
                     proxy_rep_input)
-            n = 10
-            samples_of_glob_rots = torch.zeros([n, 1, 3])
-            average_of_sample_rots = torch.zeros([1, 3])
-            for i in range(0, n):
-                f, u, s, v, pose, shape, glob, cam_wp = pose_shape_model(
-                    proxy_rep_input)
-                if glob.shape[-1] == 3:
-                    _pred_glob_rotmats = batch_rodrigues(glob)  # (1, 3, 3)
-                elif glob.shape[-1] == 6:
-                    _pred_glob_rotmats = rot6d_to_rotmat(glob)
-                xyz = pytorch3d.transforms.matrix_to_euler_angles(
-                    _pred_glob_rotmats, 'XYZ').cpu()
 
-                samples_of_glob_rots[i] += xyz
-                print(glob)
-               # print(samples_of_glob_rots)
-                print(xyz)
-                average_of_sample_rots += xyz
-
-            # samples_of_glob_rots = samples_of_glob_rots * (1/n)
-            # print(
-            #    "-------------------n samples of global rotation matrix-------------------")
-            # print(average_of_sample_rots * (1/n))
-            # print("----------- SAMPLES---------")
-            # print(samples_of_glob_rots)
-            # print(samples_of_glob_rots)
-            # Pose F, U, V and rotmats_mode are (bsize, 23, 3, 3) and Pose S is (bsize, 23, 3)
             if pred_glob.shape[-1] == 3:
                 pred_glob_rotmats = batch_rodrigues(pred_glob)  # (1, 3, 3)
             elif pred_glob.shape[-1] == 6:
@@ -233,23 +207,15 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
                 num_samples=50,
                 smpl_model=smpl_model,
                 use_mean_shape=True)
-            # print("Predicted Shape Distance Loc:")
-            # print(pred_shape_dist.loc)
-            # print("#==========================================================#")
             ppf = pred_pose_rotmats_mode.cpu().numpy()
             ppfA = []
             for x in ppf:
                 for rm in x:
-                    # print(x)
-
                     rm = torch.from_numpy(rm)
                     xyz = pytorch3d.transforms.matrix_to_euler_angles(
                         rm, 'XYZ')
                     df = [math.degrees(xyz[0]), math.degrees(
                         xyz[1]), math.degrees(xyz[2])]
-                    # print("JOINT ROTATION")
-                    # print(df)
-                    # print('==================================')
                     ppfA.append(df)
 
             if visualise_samples:
