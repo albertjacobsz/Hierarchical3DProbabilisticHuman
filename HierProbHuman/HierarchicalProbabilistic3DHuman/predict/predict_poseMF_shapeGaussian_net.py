@@ -162,10 +162,10 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
                                                pose2rot=False)
             print(
                 "-------------------Global Rotation Matrix In Euler Angles----------------")
-            rm = pytorch3d.transforms.matrix_to_euler_angles(
+            global_angles = pytorch3d.transforms.matrix_to_euler_angles(
                 pred_glob_rotmats, 'XYZ')
         # -------------------------------------------- Angles in radians ---------------------------#
-            print(rm)
+            print(global_angles)
         # --END--#
             pred_vertices_mode = pred_smpl_output_mode.vertices  # (1, 6890, 3)
             # Need to flip pred_vertices before projecting so that they project the right way up.
@@ -295,7 +295,7 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
             #uDat = [23]
             sDat = calculatePredS(pred_pose_S)
             DTA = [image_fname.split('.')[0], large_num, avg/den, count,
-                   camm.item(0), camm.item(1), camm.item(2), angX, angY, angZ]
+                   camm.item(0), camm.item(1), camm.item(2), global_angles[0], global_angles[1], global_angles[2]]
             #DTA = AppendMultipleToDTA(DTA,sDat)
             # print(ppfA)
             DTA = appendFJointsToDTA(DTA, ppfA)
