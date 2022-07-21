@@ -237,7 +237,7 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
                 for rm in x:
                     # print(x)
 
-                    rm = torch.toTensor(rm)
+                    rm = torch.ToTensor(rm)
                     print(rm)
                     xyz = pytorch3d.transforms.matrix_to_euler_angles(
                         rm, 'XYZ')
