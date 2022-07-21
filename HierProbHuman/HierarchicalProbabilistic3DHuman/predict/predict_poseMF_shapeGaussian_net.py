@@ -146,12 +146,14 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
                     _pred_glob_rotmats, 'XYZ').cpu()
                 samples_of_glob_rots[i] = xyz
                 average_of_sample_rots += xyz
-                print(average_of_sample_rots)
+                print(average_of_sample_rots * (1/n))
 
             #samples_of_glob_rots = samples_of_glob_rots * (1/n)
             print(
                 "-------------------n samples of global rotation matrix-------------------")
             print(average_of_sample_rots)
+            print("----------- SAMPLES---------")
+            print(samples_of_glob_rots)
             # print(samples_of_glob_rots)
             # Pose F, U, V and rotmats_mode are (bsize, 23, 3, 3) and Pose S is (bsize, 23, 3)
             if pred_glob.shape[-1] == 3:
