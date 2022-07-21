@@ -143,11 +143,13 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
                     _pred_glob_rotmats = batch_rodrigues(glob)  # (1, 3, 3)
                 elif glob.shape[-1] == 6:
                     _pred_glob_rotmats = rot6d_to_rotmat(glob)
-                samples_of_glob_rots[i] = _pred_glob_rotmats
-                average_of_sample_rots += _pred_glob_rotmats
+                samples_of_glob_rots[i] = _pred_glob_rotmats.cpu()
+                average_of_sample_rots += _pred_glob_rotmats.cpu()
 
             samples_of_glob_rots = samples_of_glob_rots * (1/n)
-
+            print(
+                "-------------------n samples of global rotation matrix-------------------")
+            print(samples_of_glob_rots)
             # Pose F, U, V and rotmats_mode are (bsize, 23, 3, 3) and Pose S is (bsize, 23, 3)
             if pred_glob.shape[-1] == 3:
                 pred_glob_rotmats = batch_rodrigues(pred_glob)  # (1, 3, 3)
@@ -159,6 +161,8 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
                                                    1),
                                                betas=pred_shape_dist.loc,
                                                pose2rot=False)
+            print(
+                "-------------------Global Rotation Matrix In Euler Angles----------------")
             rm = pytorch3d.transforms.matrix_to_euler_angles(
                 pred_glob_rotmats_mode)
         # -------------------------------------------- Angles in radians ---------------------------#
