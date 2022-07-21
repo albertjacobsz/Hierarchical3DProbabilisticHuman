@@ -236,10 +236,11 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
             for x in ppf:
                 for rm in x:
                     # print(x)
-                    rm = pytorch3d.transforms.matrix_to_euler_angles(
+                    print(rm)
+                    xyz = pytorch3d.transforms.matrix_to_euler_angles(
                         rm, 'XYZ')
-                    df = [math.degrees(rm[0]), math.degrees(
-                        rm[1]), math.degrees(rm[2])]
+                    df = [math.degrees(xyz[0]), math.degrees(
+                        xyz[1]), math.degrees(xyz[2])]
                     print("JOINT ROTATION")
                     print(df)
                     print('==================================')
