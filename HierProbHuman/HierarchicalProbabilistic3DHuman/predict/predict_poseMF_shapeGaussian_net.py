@@ -227,30 +227,22 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
                 num_samples=50,
                 smpl_model=smpl_model,
                 use_mean_shape=True)
-            print("Predicted Shape Distance Loc:")
-            print(pred_shape_dist.loc)
-            print("#==========================================================#")
+            #print("Predicted Shape Distance Loc:")
+            # print(pred_shape_dist.loc)
+            # print("#==========================================================#")
             ppf = pred_pose_rotmats_mode.cpu().numpy()
             ppfA = []
             mag_for_joints = []
             for x in ppf:
                 for rm in x:
                     # print(x)
-                    angX = math.atan2(rm.item(7), rm.item(8))
-                    angY = math.atan2(-1*rm.item(6),
-                                      math.sqrt(rm.item(7)**2 + rm.item(8)**2))
-                    angZ = math.atan2(rm.item(3), rm.item(0))
-
-                    ecl = math.sqrt(rm.item(0)**2+rm.item(1)**2+rm.item(3)**2+rm.item(
-                        4)**2+rm.item(5)**2+rm.item(6)**2+rm.item(7)**2+rm.item(8)**2)
-                    #print('ang x '+ str(angX))
-                    #print('ang y '+str(angY))
-                    #print('ang z '+ str(angZ))
-                    df = [math.degrees(angX), math.degrees(
-                        angY), math.degrees(angZ)]
-                    mag_for_joints.append(ecl)
-                    r = rm
-                    rT = r.transpose(0, 1)
+                    rm = pytorch3d.transforms.matrix_to_euler_angles(
+                        rm, 'XYZ')
+                    df = [math.degrees(rm[0]), math.degrees(
+                        rm[1]), math.degrees(rm[2])]
+                    print("JOINT ROTATION")
+                    print(df)
+                    print('==================================')
                     ppfA.append(df)
 
             if visualise_samples:
