@@ -133,7 +133,7 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
                 pred_shape_dist, pred_glob, pred_cam_wp = pose_shape_model(
                     proxy_rep_input)
             n = 10
-            samples_of_glob_rots = torch.zeros([n, 1, 3, 3])
+            samples_of_glob_rots = torch.zeros([n, 3])
             average_of_sample_rots = torch.zeros([1, 3])
             for i in range(0, n):
                 f, u, s, v, pose, shape, glob, cam_wp = pose_shape_model(
@@ -150,6 +150,7 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
             #samples_of_glob_rots = samples_of_glob_rots * (1/n)
             print(
                 "-------------------n samples of global rotation matrix-------------------")
+            print(average_of_sample_rots)
             # print(samples_of_glob_rots)
             # Pose F, U, V and rotmats_mode are (bsize, 23, 3, 3) and Pose S is (bsize, 23, 3)
             if pred_glob.shape[-1] == 3:
