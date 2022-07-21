@@ -139,7 +139,7 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
             for i in range(0, n):
                 f, u, s, v, pose, shape, glob, cam_wp = pose_shape_model(
                     proxy_rep_input)
-                if blob.shape[-1] == 3:
+                if glob.shape[-1] == 3:
                     _pred_glob_rotmats = batch_rodrigues(glob)  # (1, 3, 3)
                 elif glob.shape[-1] == 6:
                     _pred_glob_rotmats = rot6d_to_rotmat(glob)
