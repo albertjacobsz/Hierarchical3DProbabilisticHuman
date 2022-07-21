@@ -152,63 +152,63 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
 
             # samples_of_glob_rots = samples_of_glob_rots * (1/n)
             # print(
-                "-------------------n samples of global rotation matrix-------------------")
+            #    "-------------------n samples of global rotation matrix-------------------")
             # print(average_of_sample_rots * (1/n))
             # print("----------- SAMPLES---------")
             # print(samples_of_glob_rots)
             # print(samples_of_glob_rots)
             # Pose F, U, V and rotmats_mode are (bsize, 23, 3, 3) and Pose S is (bsize, 23, 3)
             if pred_glob.shape[-1] == 3:
-                pred_glob_rotmats=batch_rodrigues(pred_glob)  # (1, 3, 3)
+                pred_glob_rotmats = batch_rodrigues(pred_glob)  # (1, 3, 3)
             elif pred_glob.shape[-1] == 6:
-                pred_glob_rotmats=rot6d_to_rotmat(pred_glob)  # (1, 3, 3)
-            global_angles=pytorch3d.transforms.matrix_to_euler_angles(
+                pred_glob_rotmats = rot6d_to_rotmat(pred_glob)  # (1, 3, 3)
+            global_angles = pytorch3d.transforms.matrix_to_euler_angles(
                 pred_glob_rotmats, 'XYZ')
             # print(samples_of_glob_rots - pred_glob_rotmats.cpu())
-            pred_smpl_output_mode=smpl_model(body_pose = pred_pose_rotmats_mode,
-                                               global_orient = pred_glob_rotmats.unsqueeze(
+            pred_smpl_output_mode = smpl_model(body_pose=pred_pose_rotmats_mode,
+                                               global_orient=pred_glob_rotmats.unsqueeze(
                                                    1),
-                                               betas = pred_shape_dist.loc,
-                                               pose2rot = False)
+                                               betas=pred_shape_dist.loc,
+                                               pose2rot=False)
         # -------------------------------------------- Angles in radians ---------------------------#
         # --END--#
-            pred_vertices_mode=pred_smpl_output_mode.vertices  # (1, 6890, 3)
+            pred_vertices_mode = pred_smpl_output_mode.vertices  # (1, 6890, 3)
             # Need to flip pred_vertices before projecting so that they project the right way up.
-            pred_vertices_mode=aa_rotate_translate_points_pytorch3d(points = pred_vertices_mode,
-                                                                      axes = torch.tensor(
+            pred_vertices_mode = aa_rotate_translate_points_pytorch3d(points=pred_vertices_mode,
+                                                                      axes=torch.tensor(
                                                                           [1., 0., 0.], device=device),
-                                                                      angles = np.pi,
-                                                                      translations = torch.zeros(3, device=device))
+                                                                      angles=np.pi,
+                                                                      translations=torch.zeros(3, device=device))
             # -------------------------------------------------PREDICTED  VERTICES ARE USED TO SHOW GREGY 3D model ------------------------------------------------------------------------#
             # Rotating 90° about vertical axis for visualisation
-            pred_vertices_rot90_mode=aa_rotate_translate_points_pytorch3d(points = pred_vertices_mode,
-                                                                            axes = torch.tensor(
+            pred_vertices_rot90_mode = aa_rotate_translate_points_pytorch3d(points=pred_vertices_mode,
+                                                                            axes=torch.tensor(
                                                                                 [0., 1., 0.], device=device),
-                                                                            angles = -np.pi / 2.,
-                                                                            translations = torch.zeros(3, device=device))
-            pred_vertices_rot180_mode=aa_rotate_translate_points_pytorch3d(points = pred_vertices_rot90_mode,
-                                                                             axes = torch.tensor(
+                                                                            angles=-np.pi / 2.,
+                                                                            translations=torch.zeros(3, device=device))
+            pred_vertices_rot180_mode = aa_rotate_translate_points_pytorch3d(points=pred_vertices_rot90_mode,
+                                                                             axes=torch.tensor(
                                                                                  [0., 1., 0.], device=device),
-                                                                             angles = -np.pi / 2.,
-                                                                             translations = torch.zeros(3, device=device))
-            pred_vertices_rot270_mode=aa_rotate_translate_points_pytorch3d(points = pred_vertices_rot180_mode,
-                                                                             axes = torch.tensor(
+                                                                             angles=-np.pi / 2.,
+                                                                             translations=torch.zeros(3, device=device))
+            pred_vertices_rot270_mode = aa_rotate_translate_points_pytorch3d(points=pred_vertices_rot180_mode,
+                                                                             axes=torch.tensor(
                                                                                  [0., 1., 0.], device=device),
-                                                                             angles = -np.pi / 2.,
-                                                                             translations = torch.zeros(3, device=device))
+                                                                             angles=-np.pi / 2.,
+                                                                             translations=torch.zeros(3, device=device))
 
-            pred_reposed_smpl_output_mean=smpl_model(
-                betas = pred_shape_dist.loc)
+            pred_reposed_smpl_output_mean = smpl_model(
+                betas=pred_shape_dist.loc)
             # (1, 6890, 3)
-            pred_reposed_vertices_mean=pred_reposed_smpl_output_mean.vertices
+            pred_reposed_vertices_mean = pred_reposed_smpl_output_mean.vertices
             # Need to flip pred_vertices before projecting so that they project the right way up.
-            pred_reposed_vertices_flipped_mean=aa_rotate_translate_points_pytorch3d(points = pred_reposed_vertices_mean,
-                                                                                      axes = torch.tensor(
+            pred_reposed_vertices_flipped_mean = aa_rotate_translate_points_pytorch3d(points=pred_reposed_vertices_mean,
+                                                                                      axes=torch.tensor(
                                                                                           [1., 0., 0.], device=device),
-                                                                                      angles = np.pi,
-                                                                                      translations = torch.zeros(3, device=device))
+                                                                                      angles=np.pi,
+                                                                                      translations=torch.zeros(3, device=device))
             # Rotating 90° about vertical axis for visualisation
-            pred_reposed_vertices_rot90_mean=aa_rotate_translate_points_pytorch3d(points = pred_reposed_vertices_flipped_mean,
+            pred_reposed_vertices_rot90_mean = aa_rotate_translate_points_pytorch3d(points=pred_reposed_vertices_flipped_mean,
                                                                                     axes=torch.tensor(
                                                                                         [0., 1., 0.], device=device),
                                                                                     angles=-np.pi / 2.,
