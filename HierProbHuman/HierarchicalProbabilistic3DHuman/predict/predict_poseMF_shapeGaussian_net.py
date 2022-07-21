@@ -163,7 +163,7 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
             print(
                 "-------------------Global Rotation Matrix In Euler Angles----------------")
             rm = pytorch3d.transforms.matrix_to_euler_angles(
-                pred_glob, {'X', 'Y', 'Z'})
+                pred_glob, 'XYZ')
         # -------------------------------------------- Angles in radians ---------------------------#
             print(rm)
         # --END--#
