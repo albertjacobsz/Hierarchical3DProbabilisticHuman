@@ -294,7 +294,7 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
             #uDat = [23]
             sDat = calculatePredS(pred_pose_S)
             DTA = [image_fname.split('.')[0], large_num, avg/den, count,
-                   camm.item(0), camm.item(1), camm.item(2), str(global_angles[0, 0]), str(global_angles[0, 1]), str(global_angles[0, 2])]
+                   camm.item(0), camm.item(1), camm.item(2), str(global_angles[0, 0].item()), str(global_angles[0, 1].item()), str(global_angles[0, 2].item())]
             #DTA = AppendMultipleToDTA(DTA,sDat)
             # print(ppfA)
             DTA = appendFJointsToDTA(DTA, ppfA)
