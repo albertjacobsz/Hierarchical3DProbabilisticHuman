@@ -132,23 +132,23 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
             pred_pose_F, pred_pose_U, pred_pose_S, pred_pose_V, pred_pose_rotmats_mode, \
                 pred_shape_dist, pred_glob, pred_cam_wp = pose_shape_model(
                     proxy_rep_input)
-            n = 10
-            samples_of_glob_rots = torch.zeros([n, 1, 3, 3])
-            average_of_sample_rots = torch.zeros([1, 3, 3])
-            for i in range(0, n):
-                f, u, s, v, pose, shape, glob, cam_wp = pose_shape_model(
-                    proxy_rep_input)
-                if glob.shape[-1] == 3:
-                    _pred_glob_rotmats = batch_rodrigues(glob)  # (1, 3, 3)
-                elif glob.shape[-1] == 6:
-                    _pred_glob_rotmats = rot6d_to_rotmat(glob)
-                samples_of_glob_rots[i] = _pred_glob_rotmats.cpu()
-                average_of_sample_rots += _pred_glob_rotmats.cpu()
+           # n = 10
+           # samples_of_glob_rots = torch.zeros([n, 1, 3, 3])
+           # average_of_sample_rots = torch.zeros([1, 3, 3])
+          #  for i in range(0, n):
+           #     f, u, s, v, pose, shape, glob, cam_wp = pose_shape_model(
+            #        proxy_rep_input)
+            #   if glob.shape[-1] == 3:
+            #       _pred_glob_rotmats = batch_rodrigues(glob)  # (1, 3, 3)
+            #    elif glob.shape[-1] == 6:
+            #        _pred_glob_rotmats = rot6d_to_rotmat(glob)
+            #    samples_of_glob_rots[i] = _pred_glob_rotmats.cpu()
+            #    average_of_sample_rots += _pred_glob_rotmats.cpu()
 
-            samples_of_glob_rots = samples_of_glob_rots * (1/n)
+            #samples_of_glob_rots = samples_of_glob_rots * (1/n)
             print(
                 "-------------------n samples of global rotation matrix-------------------")
-            print(samples_of_glob_rots)
+            # print(samples_of_glob_rots)
             # Pose F, U, V and rotmats_mode are (bsize, 23, 3, 3) and Pose S is (bsize, 23, 3)
             if pred_glob.shape[-1] == 3:
                 pred_glob_rotmats = batch_rodrigues(pred_glob)  # (1, 3, 3)
