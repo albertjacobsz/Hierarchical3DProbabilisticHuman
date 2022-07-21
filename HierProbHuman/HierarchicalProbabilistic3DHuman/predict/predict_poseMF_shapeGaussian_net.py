@@ -146,7 +146,8 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
                     _pred_glob_rotmats, 'XYZ').cpu()
 
                 samples_of_glob_rots[i] += xyz
-                print(samples_of_glob_rots)
+                print(glob)
+               # print(samples_of_glob_rots)
                 print(xyz)
                 average_of_sample_rots += xyz
 
