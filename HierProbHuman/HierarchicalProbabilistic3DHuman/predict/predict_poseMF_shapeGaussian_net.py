@@ -132,18 +132,20 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
             pred_pose_F, pred_pose_U, pred_pose_S, pred_pose_V, pred_pose_rotmats_mode, \
                 pred_shape_dist, pred_glob, pred_cam_wp = pose_shape_model(
                     proxy_rep_input)
-           # n = 10
-           # samples_of_glob_rots = torch.zeros([n, 1, 3, 3])
-           # average_of_sample_rots = torch.zeros([1, 3, 3])
-          #  for i in range(0, n):
-           #     f, u, s, v, pose, shape, glob, cam_wp = pose_shape_model(
-            #        proxy_rep_input)
-            #   if glob.shape[-1] == 3:
-            #       _pred_glob_rotmats = batch_rodrigues(glob)  # (1, 3, 3)
-            #    elif glob.shape[-1] == 6:
-            #        _pred_glob_rotmats = rot6d_to_rotmat(glob)
-            #    samples_of_glob_rots[i] = _pred_glob_rotmats.cpu()
-            #    average_of_sample_rots += _pred_glob_rotmats.cpu()
+            n = 10
+            samples_of_glob_rots = torch.zeros([n, 1, 3, 3])
+            average_of_sample_rots = torch.zeros([1, 3])
+            for i in range(0, n):
+                f, u, s, v, pose, shape, glob, cam_wp = pose_shape_model(
+                    proxy_rep_input)
+                if glob.shape[-1] == 3:
+                    _pred_glob_rotmats = batch_rodrigues(glob)  # (1, 3, 3)
+                elif glob.shape[-1] == 6:
+                    _pred_glob_rotmats = rot6d_to_rotmat(glob)
+                xyz = pytorch3d.transforms.matrix_to_euler_angles(
+                    _pred_glob_rotmats, 'XYZ').cpu()
+                samples_of_glob_rots[i] = xyz
+                average_of_sample_rots += xyz
 
             #samples_of_glob_rots = samples_of_glob_rots * (1/n)
             print(
@@ -160,12 +162,7 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
                                                    1),
                                                betas=pred_shape_dist.loc,
                                                pose2rot=False)
-            print(
-                "-------------------Global Rotation Matrix In Euler Angles----------------")
-            global_angles = pytorch3d.transforms.matrix_to_euler_angles(
-                pred_glob_rotmats, 'XYZ')
         # -------------------------------------------- Angles in radians ---------------------------#
-            print(global_angles)
         # --END--#
             pred_vertices_mode = pred_smpl_output_mode.vertices  # (1, 6890, 3)
             # Need to flip pred_vertices before projecting so that they project the right way up.
@@ -237,7 +234,6 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
                     # print(x)
 
                     rm = torch.from_numpy(rm)
-                    print(rm)
                     xyz = pytorch3d.transforms.matrix_to_euler_angles(
                         rm, 'XYZ')
                     df = [math.degrees(xyz[0]), math.degrees(
