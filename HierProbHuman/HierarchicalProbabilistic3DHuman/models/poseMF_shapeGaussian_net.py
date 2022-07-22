@@ -118,7 +118,17 @@ class PoseMFShapeGaussianNet(nn.Module):
         # Glob rot and WP Cam
         delta_cam = self.fc_cam(x)
         delta_glob = self.fc_glob(x)
+        print("-----------Delta global -----------")
+        print(delta_glob.numel())
+        print('Size of tensor')
+        print(delta_glob.size())
+        print("-----------Delta global -----------")
         glob = delta_glob + self.init_glob  # (bsize, num glob)
+        print("----------- global -----------")
+        print(glob.numel())
+        print('Size of tensor')
+        print(glob.size())
+        print("----------- global -----------")
         cam = delta_cam + self.init_cam  # (bsize, 3)
 
         # Input Feats/Shape/Glob/Cam embed
