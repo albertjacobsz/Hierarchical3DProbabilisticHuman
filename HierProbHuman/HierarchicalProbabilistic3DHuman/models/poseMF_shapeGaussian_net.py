@@ -100,7 +100,7 @@ class PoseMFShapeGaussianNet(nn.Module):
         print("-----------IMAGE ENCODER -----------")
         print(input_feats.numel())
         print("Size of tensor")
-        print(intput_feats.size())
+        print(input_feats.size())
         print("-----------IMAGE ENCODER -----------")
         x = self.activation(self.fc1(input_feats))
         print("-----------FC 512 -----------")
