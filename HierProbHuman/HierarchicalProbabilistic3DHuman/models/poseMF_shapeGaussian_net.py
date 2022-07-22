@@ -56,6 +56,9 @@ class PoseMFShapeGaussianNet(nn.Module):
         if self.config.MODEL.NUM_RESNET_LAYERS == 18:
             self.image_encoder = resnet18(in_channels=self.config.MODEL.NUM_IN_CHANNELS,
                                           pretrained=False)
+            print("-----------IMAGE ENCODER -----------")
+            print(self.image_encoder)
+            print("-----------IMAGE ENCODER -----------")
             num_image_features = 512
             fc1_dim = 512
         elif self.config.MODEL.NUM_RESNET_LAYERS == 50:
