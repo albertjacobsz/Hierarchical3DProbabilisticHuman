@@ -98,7 +98,7 @@ class PoseMFShapeGaussianNet(nn.Module):
         batch_size = input_feats.shape[0]
         device = input_feats.device
         print("-----------IMAGE ENCODER -----------")
-        print(input_feats)
+        print(input_feats.numel())
         print("-----------IMAGE ENCODER -----------")
         x = self.activation(self.fc1(input_feats))
         # print(x)
