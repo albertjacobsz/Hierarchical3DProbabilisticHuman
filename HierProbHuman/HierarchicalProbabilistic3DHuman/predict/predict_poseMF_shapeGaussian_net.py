@@ -110,16 +110,12 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
                                                                              img_wh=pose_shape_cfg.DATA.PROXY_REP_SIZE,
                                                                              std=pose_shape_cfg.DATA.HEATMAP_GAUSSIAN_STD)
 
-            torch.save(proxy_rep_img, './edge_detect_output/' +
-                       image_fname.split('.')[0]+'_edge.pt')
+            # torch.save(proxy_rep_img, './edge_detect_output/' +
+            #         image_fname.split('.')[0]+'_edge.pt')
             hrnet_joints2Dvisib = hrnet_output['joints2Dconfs'] > joints2Dvisib_threshold
-            data = hrnet_joints2Dvisib.cpu().numpy()
-            # print(data)
-            count = 0
-            # write a row to the csv file
-            for item in data:
-                if item == True:
-                    count += 1
+
+            # CALCULATE ALL OF THE JOINTS THAT ARE VISIBLE
+            count = CalculateNumberOfJointsVisible(hrnet_joints2Dvisib)
             # Only removing joints [7, 8, 9, 10, 13, 14, 15, 16] if occluded
             hrnet_joints2Dvisib[[0, 1, 2, 3, 4, 5, 6, 11, 12]] = True
             proxy_rep_heatmaps = proxy_rep_heatmaps * \
@@ -137,16 +133,15 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
                 pred_glob_rotmats = batch_rodrigues(pred_glob)  # (1, 3, 3)
             elif pred_glob.shape[-1] == 6:
                 pred_glob_rotmats = rot6d_to_rotmat(pred_glob)  # (1, 3, 3)
+
             global_angles = pytorch3d.transforms.matrix_to_euler_angles(
                 pred_glob_rotmats, 'XYZ')
-            # print(samples_of_glob_rots - pred_glob_rotmats.cpu())
             pred_smpl_output_mode = smpl_model(body_pose=pred_pose_rotmats_mode,
                                                global_orient=pred_glob_rotmats.unsqueeze(
                                                    1),
                                                betas=pred_shape_dist.loc,
                                                pose2rot=False)
-        # -------------------------------------------- Angles in radians ---------------------------#
-        # --END--#
+
             pred_vertices_mode = pred_smpl_output_mode.vertices  # (1, 6890, 3)
             # Need to flip pred_vertices before projecting so that they project the right way up.
             pred_vertices_mode = aa_rotate_translate_points_pytorch3d(points=pred_vertices_mode,
@@ -208,15 +203,7 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
                 smpl_model=smpl_model,
                 use_mean_shape=True)
             ppf = pred_pose_rotmats_mode.cpu().numpy()
-            ppfA = []
-            for x in ppf:
-                for rm in x:
-                    rm = torch.from_numpy(rm)
-                    xyz = pytorch3d.transforms.matrix_to_euler_angles(
-                        rm, 'XYZ')
-                    df = [math.degrees(xyz[0]), math.degrees(
-                        xyz[1]), math.degrees(xyz[2])]
-                    ppfA.append(df)
+            ppfA = CalculateAllJointAngles(ppf)
 
             if visualise_samples:
                 num_samples = 8
@@ -245,32 +232,26 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
             # Generate per-vertex uncertainty colourmap
             vertex_var_norm = plt.Normalize(vmin=0.0, vmax=0.2, clip=True)
             vvc = vertex_var_norm(per_vertex_3Dvar.cpu().detach().numpy())
+            camm = cam_t.cpu().numpy()
             large_num = 0
-#---------------------------------Maxs uncertainty------------------------------#
-            # print(vvc.count())
-            # print(vvc)
-            # print(vvc.count_nonzero())
+            #---------------------------------Maxs uncertainty------------------------------#
             for number in vvc:
                 if(number > large_num):
                     large_num = number
 
-#---------------------------------Average uncertainty------------------------------#
+            #--------CALCULATING AVERAGE UNCERTAINTY-----------#
             den = 0
             avg = 0
-            camm = cam_t.cpu().numpy()
             for number in vvc:
                 den += 1
                 avg += number
-#---------------------------------- Adding all the data to a single array, preparing to write to CSV file 'all_data.csv' -----------------#
-            # uDat = [23]
-            sDat = calculatePredS(pred_pose_S)
+            # --------PREPARING TO APPEND DATA TO CSV_FILE--------#
             DTA = [image_fname.split('.')[0], large_num, avg/den, count,
                    camm.item(0), camm.item(1), camm.item(2), str(math.degrees(global_angles[0, 0].item())), str(math.degrees(global_angles[0, 1].item())), str(math.degrees(global_angles[0, 2].item()))]
-            # DTA = AppendMultipleToDTA(DTA,sDat)
-            # print(ppfA)
             DTA = appendFJointsToDTA(DTA, ppfA)
-            # DTA = appendREuclideanToDTA(DTA, mag_for_joints)
+            #--------- APPENDING 2D Joint Confidences to the Array ----------#
             DTA = AppendMultipleToDTA(DTA, hrnet_output['joints2Dconfs'])
+            # --------- Writing to CSV file, check ./csv_files
             writeToCSV(DTA)
 
             vertex_var_norm = plt.Normalize(vmin=0.0, vmax=0.2, clip=True)
@@ -279,7 +260,6 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
             vertex_var_colours = torch.from_numpy(
                 vertex_var_colours[None, :, :]).to(device).float()
 
-            # vertex_var_colours = plt.cm.jet(vertex_var_norm(per_vertex_3Dvar.cpu().detach().numpy()))[:, :3]
             body_vis_output = body_vis_renderer(vertices=pred_vertices_mode,
                                                 cam_t=cam_t,
                                                 orthographic_scale=orthographic_scale,
@@ -454,6 +434,31 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
                                 samples_fig[:, :, ::-1] * 255)
 
 
+def CalculateNumberOfJointsVisible(hrnet_joints2Dvisib):
+    data = hrnet_joints2Dvisib.cpu().numpy()
+    # print(data)
+    count = 0
+    # write a row to the csv file
+    for item in data:
+        if item == True:
+            count += 1
+    return count
+
+
+def CalculateAllJointAngles(ppf):
+    ppfA = []
+    # -------- FOR every joint
+    for x in ppf:
+        for rm in x:
+            rm = torch.from_numpy(rm)
+            xyz = pytorch3d.transforms.matrix_to_euler_angles(
+                rm, 'XYZ')
+            df = [math.degrees(xyz[0]), math.degrees(
+                xyz[1]), math.degrees(xyz[2])]
+            ppfA.append(df)
+    return ppfA
+
+
 def writeToCSV(data):
     str = 'w'
     if(os.path.exists('./csv_files/all_data.csv')):
@@ -463,7 +468,7 @@ def writeToCSV(data):
         writer = csv.writer(f)
         if(str == 'w'):
             writer.writerow(['name', 'Maximum uncertainty', 'Average Uncertainty', 'Number of Joints', 'Camera Scale', 'Camera X translation', 'Camera Y translation', 'Global X rotation', 'Global Y rotation', 'Global Z rotation', 'R0X', 'R0Y', 'R0Z', 'R1X', 'R1Y', 'R1Z', 'R2X', 'R2Y', 'R2Z', 'R3X', 'R3Y', 'R3Z', 'R4X', 'R4Y', 'R4Z', 'R5X', 'R5Y', 'R5Z', 'R6X', 'R6Y', 'R6Z', 'R7X', 'R7Y', 'R7Z', 'R8X', 'R8Y', 'R8Z', 'R9X', 'R9Y', 'R9Z', 'R10X', 'R10Y', 'R10Z', 'R11X', 'R11Y', 'R11Z', 'R12X', 'R12Y', 'R12Z',
-                            'R13X', 'R13Y', 'R13Z', 'R14X', 'R14Y', 'R14Z', 'R15X', 'R15Y', 'R15Z', 'R16X', 'R16Y', 'R16Z', 'R17X', 'R17Y', 'R17Z', 'R18X', 'R18Y', 'R18Z', 'R19X', 'R19Y', 'R19Z', 'R20X', 'R20Y', 'R20Z', 'R21X', 'R21Y', 'R21Z', 'R22X', 'R22Y', 'R22Z', 'J1', 'J2', 'J3', 'J4', 'J5', 'J6', 'J7', 'J8', 'J9', 'J10', 'J11', 'J12', 'J13', 'J14', 'J15', 'J16'])
+                            'R13X', 'R13Y', 'R13Z', 'R14X', 'R14Y', 'R14Z', 'R15X', 'R15Y', 'R15Z', 'R16X', 'R16Y', 'R16Z', 'R17X', 'R17Y', 'R17Z', 'R18X', 'R18Y', 'R18Z', 'R19X', 'R19Y', 'R19Z', 'R20X', 'R20Y', 'R20Z', 'R21X', 'R21Y', 'R21Z', 'R22X', 'R22Y', 'R22Z', 'J0', 'J1', 'J2', 'J3', 'J4', 'J5', 'J6', 'J7', 'J8', 'J9', 'J10', 'J11', 'J12', 'J13', 'J14', 'J15', 'J16'])
         # write a row to the csv file
         writer.writerow(data)
 
