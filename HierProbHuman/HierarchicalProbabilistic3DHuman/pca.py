@@ -13,8 +13,7 @@ df = pd.read_csv('./csv_files/all_data.csv')
 df.info()
 
 y = df['Average Uncertainty']
-
-
+X = y.values[:, 1:]
 wl = np.arange(1100, 2300, 2)  # wavelengths
 # Plot absorbance spectra
 with plt.style.context(('ggplot')):
