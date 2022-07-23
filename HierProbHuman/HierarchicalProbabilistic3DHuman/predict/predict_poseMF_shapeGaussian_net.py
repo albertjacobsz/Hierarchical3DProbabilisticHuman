@@ -444,11 +444,14 @@ def CalculateNumberOfJointsVisible(hrnet_joints2Dvisib):
             count += 1
     return count
 
+# -------- Turn all the 3x3 Rotation matrices into EULER angle 1x3 vectors
+
 
 def CalculateAllJointAngles(ppf):
     ppfA = []
-    # -------- FOR every joint
+    # -------- loop through the first dim of the tensor ----------------#
     for x in ppf:
+        #---------- loop through every matrix ----------------#
         for rm in x:
             rm = torch.from_numpy(rm)
             xyz = pytorch3d.transforms.matrix_to_euler_angles(

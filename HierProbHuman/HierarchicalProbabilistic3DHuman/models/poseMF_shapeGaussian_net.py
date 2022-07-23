@@ -97,17 +97,18 @@ class PoseMFShapeGaussianNet(nn.Module):
             input_feats = self.image_encoder(input)
         batch_size = input_feats.shape[0]
         device = input_feats.device
-        print("-----------IMAGE ENCODER -----------")
-        print(input_feats.numel())
-        print("Size of tensor")
-        print(input_feats.size())
-        print("-----------IMAGE ENCODER -----------")
+        #--------- PRINT STATEMENTS ARE USED TO UNDERSTAND THE NEURAL NETWORK ---------------------#
+        #print("-----------IMAGE ENCODER -----------")
+        # print(input_feats.numel())
+        #print("Size of tensor")
+        # print(input_feats.size())
+        #print("-----------IMAGE ENCODER -----------")
         x = self.activation(self.fc1(input_feats))
-        print("-----------FC 512 -----------")
-        print(x.numel())
-        print('Size of tensor')
-        print(x.size())
-        print("-----------FC F512 -----------")
+        #print("-----------FC 512 -----------")
+        # print(x.numel())
+        #print('Size of tensor')
+        # print(x.size())
+        #print("-----------FC F512 -----------")
         # print(x)
         # Shape
         shape_params = self.fc_shape(x)  # (bsize, num_smpl_betas * 2)
@@ -115,20 +116,20 @@ class PoseMFShapeGaussianNet(nn.Module):
         shape_log_std = shape_params[:, self.num_shape_params:]
         shape_dist = Normal(loc=shape_mean, scale=torch.exp(shape_log_std))
 
-        # Glob rot and WP Cam
         delta_cam = self.fc_cam(x)
         delta_glob = self.fc_glob(x)
-        print("-----------Delta global -----------")
-        print(delta_glob.numel())
-        print('Size of tensor')
-        print(delta_glob.size())
-        print("-----------Delta global -----------")
+
+        #print("-----------Delta global -----------")
+        # print(delta_glob.numel())
+        #print('Size of tensor')
+        # print(delta_glob.size())
+        #print("-----------Delta global -----------")
         glob = delta_glob + self.init_glob  # (bsize, num glob)
-        print("----------- global -----------")
-        print(glob.numel())
-        print('Size of tensor')
-        print(glob.size())
-        print("----------- global -----------")
+        #print("----------- global -----------")
+        # print(glob.numel())
+        #print('Size of tensor')
+        # print(glob.size())
+        #print("----------- global -----------")
         cam = delta_cam + self.init_cam  # (bsize, 3)
 
         # Input Feats/Shape/Glob/Cam embed
