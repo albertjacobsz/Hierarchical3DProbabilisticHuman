@@ -309,7 +309,9 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
             # Cropped input image
             combined_vis_fig[:visualise_wh, :visualise_wh] = cropped_for_proxy_rgb.cpu(
             ).detach().numpy()[0].transpose(1, 2, 0)
-
+            DTA = appendFJointsToDTA(DTA, ppfA)
+            #--------- APPENDING 2D Joint Confidences to the Array ----------#
+            DTA = AppendMultipleToDTA(DTA, hrnet_output['joints2Dconfs'])
             joint_coordinates = []
 
             # Proxy representation + 2D joints scatter + 2D joints confidences
@@ -325,8 +327,8 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
                 ver_coord = cropped_for_proxy['joints2D'][0, joint_num, 1].item(
                 ) * visualise_wh / pose_shape_cfg.DATA.PROXY_REP_SIZE
 
-                joint_coordinates.append(hor_coord)
-                joint_coordinates.append(ver_coord)
+                DTA.append(hor_coord)
+                DTA.append(ver_coord)
 
                 cv2.circle(proxy_rep_input,
                            (int(hor_coord), int(ver_coord)),
@@ -395,10 +397,6 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
                 cv2.imwrite(uncropped_vis_save_path,
                             uncropped_rgb_with_background[:, :, ::-1])
 
-            DTA.append(joint_coordinates)
-            DTA = appendFJointsToDTA(DTA, ppfA)
-            #--------- APPENDING 2D Joint Confidences to the Array ----------#
-            DTA = AppendMultipleToDTA(DTA, hrnet_output['joints2Dconfs'])
             # --------- Writing to CSV file, check ./csv_files
             writeToCSV(DTA)
 
