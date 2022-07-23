@@ -327,6 +327,11 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
                 ) * visualise_wh / pose_shape_cfg.DATA.PROXY_REP_SIZE
                 ver_coord = cropped_for_proxy['joints2D'][0, joint_num, 1].item(
                 ) * visualise_wh / pose_shape_cfg.DATA.PROXY_REP_SIZE
+
+                print('Horizontal Coordinate for ' + str(joint_num))
+                print(hor_coord)
+                print('Vertical Coordinate for ' + str(joint_num))
+                print(ver_coord)
                 cv2.circle(proxy_rep_input,
                            (int(hor_coord), int(ver_coord)),
                            radius=3,
