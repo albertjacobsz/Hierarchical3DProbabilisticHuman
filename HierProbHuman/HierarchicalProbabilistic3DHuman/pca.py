@@ -13,7 +13,7 @@ df = pd.read_csv('./csv_files/all_data.csv')
 df.info()
 
 y = df['Average Uncertainty']
-y = df['Brix']
+
 
 wl = np.arange(1100, 2300, 2)  # wavelengths
 # Plot absorbance spectra
