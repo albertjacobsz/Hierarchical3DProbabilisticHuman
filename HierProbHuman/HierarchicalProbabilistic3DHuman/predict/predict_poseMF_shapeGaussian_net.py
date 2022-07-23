@@ -248,11 +248,6 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
             # --------PREPARING TO APPEND DATA TO CSV_FILE--------#
             DTA = [image_fname.split('.')[0], large_num, avg/den, count,
                    camm.item(0), camm.item(1), camm.item(2), str(math.degrees(global_angles[0, 0].item())), str(math.degrees(global_angles[0, 1].item())), str(math.degrees(global_angles[0, 2].item()))]
-            DTA = appendFJointsToDTA(DTA, ppfA)
-            #--------- APPENDING 2D Joint Confidences to the Array ----------#
-            DTA = AppendMultipleToDTA(DTA, hrnet_output['joints2Dconfs'])
-            # --------- Writing to CSV file, check ./csv_files
-            writeToCSV(DTA)
 
             vertex_var_norm = plt.Normalize(vmin=0.0, vmax=0.2, clip=True)
             vertex_var_colours = plt.cm.jet(vertex_var_norm(
@@ -315,6 +310,8 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
             combined_vis_fig[:visualise_wh, :visualise_wh] = cropped_for_proxy_rgb.cpu(
             ).detach().numpy()[0].transpose(1, 2, 0)
 
+            joint_coordinates = []
+
             # Proxy representation + 2D joints scatter + 2D joints confidences
             proxy_rep_input = proxy_rep_input[0].sum(
                 dim=0).cpu().detach().numpy()
@@ -328,10 +325,9 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
                 ver_coord = cropped_for_proxy['joints2D'][0, joint_num, 1].item(
                 ) * visualise_wh / pose_shape_cfg.DATA.PROXY_REP_SIZE
 
-                print('Horizontal Coordinate for ' + str(joint_num))
-                print(hor_coord)
-                print('Vertical Coordinate for ' + str(joint_num))
-                print(ver_coord)
+                joint_coordinates.append(hor_coord)
+                joint_coordinates.append(ver_coord)
+
                 cv2.circle(proxy_rep_input,
                            (int(hor_coord), int(ver_coord)),
                            radius=3,
@@ -398,6 +394,13 @@ def predict_poseMF_shapeGaussian_net(pose_shape_model,
                     0] + '_uncrop.png'
                 cv2.imwrite(uncropped_vis_save_path,
                             uncropped_rgb_with_background[:, :, ::-1])
+
+            DTA.append(joint_coordinates)
+            DTA = appendFJointsToDTA(DTA, ppfA)
+            #--------- APPENDING 2D Joint Confidences to the Array ----------#
+            DTA = AppendMultipleToDTA(DTA, hrnet_output['joints2Dconfs'])
+            # --------- Writing to CSV file, check ./csv_files
+            writeToCSV(DTA)
 
             if visualise_samples:
                 samples_rows = 3
@@ -476,7 +479,7 @@ def writeToCSV(data):
         writer = csv.writer(f)
         if(str == 'w'):
             writer.writerow(['name', 'Maximum uncertainty', 'Average Uncertainty', 'Number of Joints', 'Camera Scale', 'Camera X translation', 'Camera Y translation', 'Global X rotation', 'Global Y rotation', 'Global Z rotation', 'R0X', 'R0Y', 'R0Z', 'R1X', 'R1Y', 'R1Z', 'R2X', 'R2Y', 'R2Z', 'R3X', 'R3Y', 'R3Z', 'R4X', 'R4Y', 'R4Z', 'R5X', 'R5Y', 'R5Z', 'R6X', 'R6Y', 'R6Z', 'R7X', 'R7Y', 'R7Z', 'R8X', 'R8Y', 'R8Z', 'R9X', 'R9Y', 'R9Z', 'R10X', 'R10Y', 'R10Z', 'R11X', 'R11Y', 'R11Z', 'R12X', 'R12Y', 'R12Z',
-                            'R13X', 'R13Y', 'R13Z', 'R14X', 'R14Y', 'R14Z', 'R15X', 'R15Y', 'R15Z', 'R16X', 'R16Y', 'R16Z', 'R17X', 'R17Y', 'R17Z', 'R18X', 'R18Y', 'R18Z', 'R19X', 'R19Y', 'R19Z', 'R20X', 'R20Y', 'R20Z', 'R21X', 'R21Y', 'R21Z', 'R22X', 'R22Y', 'R22Z', 'J0', 'J1', 'J2', 'J3', 'J4', 'J5', 'J6', 'J7', 'J8', 'J9', 'J10', 'J11', 'J12', 'J13', 'J14', 'J15', 'J16'])
+                            'R13X', 'R13Y', 'R13Z', 'R14X', 'R14Y', 'R14Z', 'R15X', 'R15Y', 'R15Z', 'R16X', 'R16Y', 'R16Z', 'R17X', 'R17Y', 'R17Z', 'R18X', 'R18Y', 'R18Z', 'R19X', 'R19Y', 'R19Z', 'R20X', 'R20Y', 'R20Z', 'R21X', 'R21Y', 'R21Z', 'R22X', 'R22Y', 'R22Z', 'J0', 'J1', 'J2', 'J3', 'J4', 'J5', 'J6', 'J7', 'J8', 'J9', 'J10', 'J11', 'J12', 'J13', 'J14', 'J15', 'J16', 'J0 x', 'J0y', 'J1x', 'J1y', 'J2x', 'J2y', 'J3x', 'J3y', 'J4x', 'J4y', 'J5x', 'J5y', 'J6x', 'J6y', 'J7x', 'J7y', 'J8x', 'J8y', 'J9x', 'J9y', 'J10x', 'J10y', 'J11x', 'J11y', 'J12x', 'J12y', 'J13x', 'J13y', 'J14x', 'J14y', 'J15x', 'J15y', 'J16x', 'J16y'])
         # write a row to the csv file
         writer.writerow(data)
 
