@@ -10,14 +10,16 @@ from sklearn.cross_decomposition import PLSRegression, PLSSVD
 from sklearn.metrics import mean_squared_error
 
 df = pd.read_csv('./csv_files/all_data.csv')
-df.info()
 
-y = df['Average Uncertainty']
-X = y.values[1:]
-wl = np.arange(1100, 2300, 2)  # wavelengths
-# Plot absorbance spectra
-with plt.style.context(('ggplot')):
-    plt.plot(wl, X.T)
-    plt.xlabel('Wavelength (nm)')
-    plt.ylabel('Absorbance')
+corr = df.corr()
+fig = plt.figure()
+ax = fig.add_subplot(111)
+cax = ax.matshow(corr,cmap='coolwarm', vmin=-1, vmax=1)
+fig.colorbar(cax)
+ticks = np.arange(0,len(data.columns),1)
+ax.set_xticks(ticks)
+plt.xticks(rotation=90)
+ax.set_yticks(ticks)
+ax.set_xticklabels(data.columns)
+ax.set_yticklabels(data.columns)
 plt.show()
