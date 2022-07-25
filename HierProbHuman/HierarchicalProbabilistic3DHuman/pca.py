@@ -12,7 +12,7 @@ from sklearn.metrics import mean_squared_error
 df = pd.read_csv('./csv_files/all_data.csv')
 
 corr = df.corr()
-fig = plt.figure(figsize=(100, 30))
+fig = plt.figure(figsize=(100, 100))
 ax = fig.add_subplot(111)
 cax = ax.matshow(corr, cmap='coolwarm', vmin=-1, vmax=1)
 fig.colorbar(cax)
