@@ -12,8 +12,8 @@ from sklearn.metrics import mean_squared_error
 df = pd.read_csv('./csv_files/all_data.csv')
 
 corr = df.corr()
-fig = plt.figure()
-ax = fig.add_subplot(311)
+fig = plt.figure(figsize=(100, 30))
+ax = fig.add_subplot(111)
 cax = ax.matshow(corr, cmap='coolwarm', vmin=-1, vmax=1)
 fig.colorbar(cax)
 ticks = np.arange(0, len(df.columns), 1)
