@@ -10,15 +10,14 @@ corr_mat = df.corr(method='pearson')
 # Retain upper triangular values of correlation matrix and
 # make Lower triangular values Null
 upper_corr_mat = corr_mat.where(
-    np.triu(np.ones(corr_mat.shape), k=1).astype(np.bool))
+    np.triu(np.ones(corr_mat.shape), k=1).astype(bool))
 
 # Convert to 1-D series and drop Null values
 unique_corr_pairs = upper_corr_mat.unstack().dropna()
 
 # Sort correlation pairs
 sorted_mat = unique_corr_pairs.sort_values()
-sort_T = sorted_mat.transpose()
-sort_T = sort_T.drop(sort_T[sort_T[2] > 0.5].index, inplace=True)
-sort_T = sort_T.drop(sort_T[sort_T[2] < -0.5].index, inplace=True)
+sorted_mat.columns = ['x', 'y', 'value']
+sort_T = sorted_mat.loc(sorted_mat['value'] > 0.5)
 
 sort_T.to_csv('correlations.csv')
