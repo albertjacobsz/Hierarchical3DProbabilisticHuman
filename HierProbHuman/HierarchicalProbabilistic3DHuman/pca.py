@@ -18,7 +18,7 @@ upper_tri = cor_matrix.where(
     np.triu(np.ones(cor_matrix.shape), k=1).astype(np.bool))
 print(upper_tri)
 to_drop = [column for column in upper_tri.columns if any(
-    upper_tri[column] < 0.2 and upper_tri[column] > -0.2)]
+    upper_tri[column] < 0.2)]
 print()
 print(to_drop)
 df1 = df.drop(df.columns[to_drop], axis=1)
