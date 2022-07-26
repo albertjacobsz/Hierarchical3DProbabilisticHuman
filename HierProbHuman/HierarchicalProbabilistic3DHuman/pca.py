@@ -17,9 +17,6 @@ unique_corr_pairs = upper_corr_mat.unstack().dropna()
 
 # Sort correlation pairs
 sorted_mat = unique_corr_pairs.sort_values()
-print(type(sorted_mat))
+sort_T = sorted_mat.transpose()
+sort_T.to_csv('correlations.csv')
 header = ['x', 'y', 'z']
-with open('correlations.csv', 'a', newline='') as f:
-    writer = csv.writer(f)
-    # write the header
-    writer.writerow(header)
