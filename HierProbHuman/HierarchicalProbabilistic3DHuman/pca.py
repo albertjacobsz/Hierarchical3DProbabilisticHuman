@@ -17,7 +17,6 @@ unique_corr_pairs = upper_corr_mat.unstack().dropna()
 
 # Sort correlation pairs
 sorted_mat = unique_corr_pairs.sort_values()
-sorted_mat.set_axis(['x', 'y', 'value'], inplace=True)
 print(sorted_mat.head())
 
 
