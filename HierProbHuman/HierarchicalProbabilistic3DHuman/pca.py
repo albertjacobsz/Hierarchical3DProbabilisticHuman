@@ -29,7 +29,7 @@ print(sorted_mat)
 fig = plt.figure(figsize=(100, 100))
 ax = fig.add_subplot(111)
 
-cax = ax.matshow(df1, cmap='coolwarm', vmin=-1, vmax=1)
+cax = ax.matshow(sorted_mat, cmap='coolwarm', vmin=-1, vmax=1)
 fig.colorbar(cax)
 ticks = np.arange(0, len(df.columns), 1)
 ax.set_xticks(ticks)
