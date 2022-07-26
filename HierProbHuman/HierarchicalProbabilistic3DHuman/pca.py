@@ -17,8 +17,9 @@ unique_corr_pairs = upper_corr_mat.unstack().dropna()
 
 # Sort correlation pairs
 sorted_mat = unique_corr_pairs.sort_values()
-sorted_mat = sorted_mat[sorted_mat.iloc[2, :] > 0.5]
-print(sorted_mat.head())
+#sorted_mat = sorted_mat[sorted_mat.iloc[2, :] > 0.5]
+st = sorted_mat.drop(sorted_mat[sorted_mat.iloc[:, 2] > 0.5].index)
+print(st.head())
 
 
 # sort_T.to_csv('correlations.csv')
