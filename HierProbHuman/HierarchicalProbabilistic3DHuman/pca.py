@@ -24,17 +24,10 @@ unique_corr_pairs = upper_corr_mat.unstack().dropna()
 
 # Sort correlation pairs
 sorted_mat = unique_corr_pairs.sort_values()
-
+header = ['x', 'y', 'z']
 print(sorted_mat)
-fig = plt.figure(figsize=(100, 100))
-ax = fig.add_subplot(111)
-
-cax = ax.matshow(sorted_mat, cmap='coolwarm', vmin=-1, vmax=1)
-fig.colorbar(cax)
-ticks = np.arange(0, len(df.columns), 1)
-ax.set_xticks(ticks)
-plt.xticks(rotation=90)
-ax.set_yticks(ticks)
-ax.set_xticklabels(df.columns, fontsize=78)
-ax.set_yticklabels(df.columns, fontsize=78)
-plt.savefig("representation.png")
+with open('./csv_files/correlations.csv', newline='') as f:
+    writer = csv.writer(f)
+    # write the header
+    writer.writerow(header)
+    writer.writerow(sorted_mat)
