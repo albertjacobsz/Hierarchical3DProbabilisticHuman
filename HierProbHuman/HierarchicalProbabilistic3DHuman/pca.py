@@ -23,4 +23,5 @@ with open('correlations.csv', 'a', newline='') as f:
     writer = csv.writer(f)
     # write the header
     writer.writerow(header)
-    writer.writerow(sorted_mat)
+    for x in sorted_mat:
+        writer.writerow(x)
