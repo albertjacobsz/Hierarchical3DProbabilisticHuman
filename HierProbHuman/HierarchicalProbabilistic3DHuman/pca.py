@@ -38,3 +38,6 @@ def pcr():
 
 def main():
     pcr()
+
+
+main()
